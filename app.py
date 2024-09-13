@@ -18,7 +18,7 @@ def ask():
 
     # Otherwise, send the question to widipe.com/gpt4
     try:
-        external_api_url = 'https://widipe.com/gpt4'
+        external_api_url = 'https://archrest.vercel.app/api/generate'
         external_response = requests.post(external_api_url, json={"question": user_question})
 
         if external_response.status_code == 200:
