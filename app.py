@@ -4,7 +4,7 @@ from flask import Flask, request, jsonify
 app = Flask(__name__)
 
 # Base URL of the external API
-EXTERNAL_API_URL = 'https://widipe.com/gpt4'
+EXTERNAL_API_URL = 'https://widipe.com/gpt4?text= {}'
 
 # Define a dictionary to store identity-related questions and their responses
 IDENTITY_RESPONSES = {
