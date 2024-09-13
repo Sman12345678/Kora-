@@ -3,10 +3,8 @@ from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-# Base URL of the external API
-EXTERNAL_API_URL = 'https://widipe.com/gemini?text= {}'
+EXTERNAL_API_URL = 'https://widipe.com/gemini'
 
-# Define a dictionary to store identity-related questions and their responses
 IDENTITY_RESPONSES = {
     "who are you": "I am KORA, developed by Suleiman for the purpose of education and friendship.",
     "what is your name": "My name is KORA.",
@@ -16,43 +14,37 @@ IDENTITY_RESPONSES = {
     "what is your purpose": "My purpose is to educate and provide assistance in learning and understanding topics.",
     "where are you from": "I am a digital assistant, so I don't have a physical location.",
     "how can you help me": "I can help by answering questions, providing explanations, and engaging in friendly conversations.",
-    "what technologies were used to create you": "I was built using Python and Flask, with backend support By my Lord Suleiman .",
-    "what makes you different from other bots": "I am designed specifically for education and friendship, with a focus on assisting learners."
+    "what technologies were used to create you": "I was built using Python and Flask, with backend support Developed by SULEIMAN .",
+    "what is your model": "I am KORA specifically for education Developed By SULEIMAN >SMAN V1.0<, with a focus on assisting learners."
 }
 
 @app.route('/ask', methods=['GET'])
 def ask():
-    # Get the question from the query parameters
     question = request.args.get('question', '').lower()
 
     if question:
-        # Check if the question matches any predefined identity-related questions
         for key, response in IDENTITY_RESPONSES.items():
             if key in question:
-                return jsonify({
-                    "response": response
-                })
+                return jsonify({"response": response})
 
-        # If it's not an identity-related question, forward it to the external API
         try:
-            # Sending request to the external API
-            external_response = requests.get(EXTERNAL_API_URL, params={'question': question})
+            external_response = requests.get(EXTERNAL_API_URL, params={'text': question})
 
-            # Checking if the request to the external API was successful
             if external_response.status_code == 200:
-                # Return the response from the external API
-                return jsonify({
-                    "response": external_response.json()
-                })
+                try:
+                    ai_response = external_response.json()
+                    return jsonify({
+                        "response": ai_response.get('result', "No result found."),
+                        "status": ai_response.get('status', False),
+                        "creator": ai_response.get('creator', "Unknown")
+                    })
+                except ValueError:
+                    return jsonify({"error": "AI API returned a non-JSON response."}), 500
             else:
-                return jsonify({
-                    "error": "Failed to get a response from the external API."
-                }), 500
+                return jsonify({"error": "Failed to get a response from the AI API."}), 500
 
         except Exception as e:
-            return jsonify({
-                "error": f"An error occurred: {str(e)}"
-            }), 500
+            return jsonify({"error": f"An error occurred: {str(e)}"}), 500
     else:
         return jsonify({"error": "Please provide a question."})
 
